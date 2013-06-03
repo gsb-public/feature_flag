@@ -1,0 +1,8 @@
+<?php
+
+/*
+ * Implements hook_install().
+ */
+function feature_flag_install() {
+  variable_set('feature_flag_event_activated', 1);
+}
