@@ -1,0 +1,8 @@
+name = Feature Flag
+description = Custom Feature Flag
+core = 7.x
+package = GSB
+
+
+version = "master-dev"
+project = "feature_flag"

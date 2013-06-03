@@ -1,0 +1,97 @@
+<?php
+
+/**
+ * Implements hook_permission().
+ */
+function feature_flag_permission() {
+  return array(
+    'administer feature flag' => array(
+      'title' => t('Administer feature flags'),
+      'description' => t('Feature and unfeature nodes using feature flag.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu
+ */
+function feature_flag_menu() {
+  $items = array();
+  $items['admin/config/feature_flag'] = array(
+    'title' => 'Configure feature flag',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('feature_flag_config'),
+    'access callback' => 'user_access',
+    'access arguments' => array('administer feature flag'),
+    'type' => MENU_CALLBACK,
+    'file' => 'feature_flag.admin.inc',
+  );
+  $items['feature_flag_flag/%node'] = array(
+    'page callback' => 'feature_flag_flag',
+    'page arguments' => array(1),
+    'access callback' => 'feature_flag_access',
+    'access arguments' => array(1),
+    'type' => MENU_CALLBACK,
+    'file' => 'feature_flag.inc',
+  );
+  $items['feature_flag_unflag/%node'] = array(
+    'page callback' => 'feature_flag_unflag',
+    'page arguments' => array(1),
+    'access callback' => 'feature_flag_access',
+    'access arguments' => array(1),
+    'type' => MENU_CALLBACK,
+    'file' => 'feature_flag.inc',
+  );
+  return $items;
+}
+
+/**
+ * Implements access callback
+ */
+function feature_flag_access($node) {
+  if (!user_access('administer feature flag') || !variable_get('feature_flag_' . $node->type . '_activated', 0)) {
+    //if user doesn't have permissions or featured flag is not activated for node's type
+    return FALSE;
+  }
+  if (!variable_get('feature_flag_' . $type . '_activated', 0)) {
+    return FALSE;
+  }
+  return TRUE;
+}
+
+/**
+ * Implements hook_node_view_alter
+ */
+function feature_flag_node_view_alter(&$build) {return;
+  drupal_add_library('system', 'drupal.ajax');
+  $node = $build['#node'];
+  if (!user_access('administer feature flags') || !variable_get('feature_flag_' . $node->type . '_activated', 0)) {
+    //if user doesn't have access or feature flag is not activated for this content type
+    return;
+  }
+  $flag = variable_get('feature_flag_' . $node->type, 0);
+  l(t('Click here'), 'ajax_link_callback/nojs/', array('attributes' => array('class' => array('use-ajax'))));
+  
+  if ($flag == $node->nid) {
+    //the node is flagged
+    $href = 'feature_flag_unflag';
+    $title = t('Unflag as featured');
+    $feature_flag_class = 'feature_flag_flagged';
+  }
+  else {
+    //not flagged
+    $href = 'feature_flag_flag';
+    $title = t('Flag as featured');
+    $feature_flag_class = 'feature_flag_unflagged';
+  }
+  
+  $build['links']['#links']['featured-flag'] = array(
+    'title' => $title, 
+    'href' => $href . '/' . $node->nid . '/nojs', 
+    'html' => TRUE, 
+    'attributes' => array(
+      'class' => array('use-ajax', 'flag-node-' . $node->nid, $feature_flag_class),
+      'title' => $title,
+    ),
+  );
+}
