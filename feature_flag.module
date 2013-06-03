@@ -53,7 +53,7 @@ function feature_flag_access($node) {
     //if user doesn't have permissions or featured flag is not activated for node's type
     return FALSE;
   }
-  if (!variable_get('feature_flag_' . $type . '_activated', 0)) {
+  if (!variable_get('feature_flag_' . $node->type . '_activated', 0)) {
     return FALSE;
   }
   return TRUE;
