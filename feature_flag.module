@@ -6,7 +6,7 @@
 function feature_flag_permission() {
   return array(
     'administer feature flag' => array(
-      'title' => t('Administer feature flags'),
+      'title' => t('Administer feature flag'),
       'description' => t('Feature and unfeature nodes using feature flag.'),
     ),
   );
@@ -65,7 +65,7 @@ function feature_flag_access($node) {
 function feature_flag_node_view_alter(&$build) {
   drupal_add_library('system', 'drupal.ajax');
   $node = $build['#node'];
-  if (!user_access('administer feature flags') || !variable_get('feature_flag_' . $node->type . '_activated', 0)) {
+  if (!user_access('administer feature flag') || !variable_get('feature_flag_' . $node->type . '_activated', 0)) {
     //if user doesn't have access or feature flag is not activated for this content type
     return;
   }
